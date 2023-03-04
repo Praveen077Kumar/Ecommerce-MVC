@@ -1,1 +1,0 @@
-it is the sample file for the remote origin.
