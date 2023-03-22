@@ -18,7 +18,8 @@ exports.PostAddProduct=(req, res, next) => {
     
 
 exports.getProducts=(req, res, next) => {
-    const products= Product.fetchAll()
+   Product.fetchAll((products)=>{    //callback function for getting the data into the models/product.js
+    console.log(products.length)
     res.render('shop', {
       prods: products,
       pageTitle: 'Shop',
@@ -27,5 +28,6 @@ exports.getProducts=(req, res, next) => {
       activeShop: true,
       productCSS: true
     });
-  }
+    });
+  };
 
