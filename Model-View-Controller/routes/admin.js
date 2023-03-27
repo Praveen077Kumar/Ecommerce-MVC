@@ -1,10 +1,15 @@
-const productControllers= require('../controllers/product') //importing controller file
+const path = require('path');
+
 const express = require('express');
+
+const productsController = require('../controllers/products');
+
 const router = express.Router();
 
 // /admin/add-product => GET
-router.get('/add-product', productControllers.getAddProduct);
-// /admin/add-product => POST
-router.post('/add-product', productControllers.PostAddProduct);
+router.get('/add-product', productsController.getAddProduct);
 
-module.exports= router
+// /admin/add-product => POST
+router.post('/add-product', productsController.postAddProduct);
+
+module.exports = router;

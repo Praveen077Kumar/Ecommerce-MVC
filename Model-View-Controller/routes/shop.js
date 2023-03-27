@@ -1,8 +1,11 @@
+const path = require('path');
+
 const express = require('express');
-const productController=require('../controllers/product') //importing controller file
 
-const router = express.Router();  //instance creation for Router method 
+const productsController = require('../controllers/products');
 
-router.get('/',productController.getProducts);  //reference for the controller function
+const router = express.Router();
 
-module.exports = router;   //exporting the router
+router.get('/', productsController.getProducts);
+
+module.exports = router;
