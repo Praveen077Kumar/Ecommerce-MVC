@@ -12,6 +12,9 @@ router.get('/products', shopController.getProducts);
 
 router.get('/cart', shopController.getCart);
 
+//it refers the dynamic productid variable path.
+router.get('/products/:productId',shopController.getProduct)
+
 router.get('/orders', shopController.getOrders);
 
 router.get('/checkout', shopController.getCheckout);
