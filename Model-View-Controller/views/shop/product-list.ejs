@@ -1,10 +1,14 @@
 <%- include('../includes/head.ejs') %>
     <link rel="stylesheet" href="/css/product.css">
+    <link rel="stylesheet" href="/css/blinktext.css">
     </head>
 
     <body>
         <%- include('../includes/navigation.ejs') %>
-
+        <div class="blink">
+            <h1 class="SaleLive" > Buy Now,<br>Sale is Live....</h1> 
+        </div>
+        
             <main>
                 <% if (prods.length > 0) { %>
                     <div class="grid">
