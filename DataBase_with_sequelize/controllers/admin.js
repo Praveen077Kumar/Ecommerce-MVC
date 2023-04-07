@@ -50,15 +50,19 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-  const updatedProduct = new Product(
-    prodId,
-    updatedTitle,
-    updatedImageUrl,
-    updatedDesc,
-    updatedPrice
-  );
-  updatedProduct.save();
-  res.redirect('/admin/products');
+  Product.findByPk(prodId)
+  .then((product) => {
+    product.title= updatedTitle,
+    product.price= updatedPrice,
+    product.imageUrl= updatedImageUrl,
+    product.description= updatedDesc
+    return product.save();
+   }).then(result =>{
+      console.log('UPDATED PRODUCT!');
+      res.redirect('/admin/products');
+   })
+  .catch((err) =>{
+  }) 
 };
 
 exports.postDeleteProduct=(req,res,next)=>{
