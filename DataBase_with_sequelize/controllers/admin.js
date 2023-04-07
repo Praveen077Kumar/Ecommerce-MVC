@@ -31,7 +31,7 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-  Product.findById(prodId, product => {
+  Product.findByPk(prodId).then((product) => {
     if (!product) {
       return res.redirect('/');
     }
@@ -68,9 +68,9 @@ exports.postDeleteProduct=(req,res,next)=>{
 }
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll().then(([rows, fieldData])=>{
+  Product.findAll().then(product=>{
     res.render('admin/products', {
-      prods: rows,
+      prods: product,
       pageTitle: 'Admin Products',
       path: '/admin/products'
     });
