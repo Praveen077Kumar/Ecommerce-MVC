@@ -40,7 +40,10 @@ Product.belongsToMany(Cart,{through:Cart_item});
 
 
 const sequelize = require('./util/database')
-sequelize.sync().then(result =>{
+sequelize
+// .sync({force: true})
+.sync()
+.then(result =>{
    return User.findByPk(1);
 }).then(user =>{
     if(!user){
@@ -49,6 +52,9 @@ sequelize.sync().then(result =>{
     return user;
 })
 .then(user =>{
+    return user.createCart();
+})
+.then(user=>{
     app.listen(3000);
 })
 .catch(err => {
