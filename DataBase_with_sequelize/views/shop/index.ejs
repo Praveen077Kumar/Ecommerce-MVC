@@ -1,15 +1,11 @@
 <%- include('../includes/head.ejs') %>
     <link rel="stylesheet" href="/css/product.css">
-    <link rel="stylesheet" href="/css/blinktext.css">
 </head>
 
 <body>
     <%- include('../includes/navigation.ejs') %>
 
     <main>
-        <div class="blink">
-            <h1 class="SaleLive" > Buy Now,<br>Sale is Live....</h1> 
-        </div>
         <% if (prods.length > 0) { %>
             <div class="grid">
                 <% for (let product of prods) { %>
@@ -26,6 +22,7 @@
                             <p class="product__description"><%= product.description %></p>
                         </div>
                         <div class="card__actions">
+                                <a href="/products/<%= product.id %>" class="btn">Details</a>
                             <%- include('../includes/add-to-cart.ejs', {product: product}) %>
                         </div>
                     </article>
