@@ -10,7 +10,7 @@
             "name": "Launch Program", 
             "restart": true,
             "runtimeExecutable": "nodemon",
-            "program": "${workspaceFolder}/nodeApp/app.js",
+            "program": "${workspaceFolder}/TemplatingEngines_Ejs/app.js",
             "console": "integratedTerminal"
         }
     ]
