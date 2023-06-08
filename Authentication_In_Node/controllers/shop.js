@@ -53,8 +53,7 @@ exports.getCart = (req, res, next) => {
       res.render('shop/cart', {
         path: '/cart',
         pageTitle: 'Your Cart',
-        products: products,
-        isAuthenticated: req.session.isLoggedIn
+        products: products
       });
     })
     .catch(err => console.log(err));
@@ -114,7 +113,6 @@ exports.getOrders = (req, res, next) => {
         path: '/orders',
         pageTitle: 'Your Orders',
         orders: orders,
-        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => console.log(err));
