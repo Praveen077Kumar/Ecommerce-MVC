@@ -1,7 +1,17 @@
 const bcrypt = require('bcryptjs');
-
+const crypto = require('crypto');
 const User = require('../models/user');
 
+const nodemailer= require('nodemailer');
+const mailtrap= require('mailtrap');
+const transporter = nodemailer.createTransport({
+  host: "sandbox.smtp.mailtrap.io",
+  port: 2525,
+  auth: {
+    user: "475f75ddc8d554",
+    pass: "4b4b876b51e200"
+  }
+});
 exports.getLogin = (req, res, next) => {
   let message= req.flash('error');
   if(message.length > 0){
@@ -75,6 +85,15 @@ exports.postSignup = (req, res, next) => {
         })
         .then(result => {
           res.redirect('/login');
+          return transporter.sendMail({
+            to: email,
+            from:'test@email.com',
+            subject: 'testing email',
+            html:'<h1> you have successfully joined!</h1>'
+          });
+        })
+        .catch(err => {
+          console.log(err);
         });
     })
     .catch(err => {
@@ -88,3 +107,58 @@ exports.postLogout = (req, res, next) => {
     res.redirect('/');
   });
 };
+
+exports.getReset = (req,res,next)=>{
+  let message= req.flash('error');
+  if(message.length > 0){
+    message= message[0];
+  }
+  else {
+    message= null;
+  }
+
+  res.render('auth/reset',{
+    path: '/reset',
+    pageTitle: 'Reset Password',
+    errorMessage: message
+  })
+}
+
+exports.postRest= (res,req,next) => {
+  crypto.randomBytes(32,(err,buffer) =>{
+    if(err){
+      console.log(err);
+      return res.redirect('/reset');
+    }
+    const token= buffer.toString('hex');
+    User.findOne({ email: req.body.email})
+    .then(user => {
+      if(!user){
+        req.flash('error', 'No account with that email!');
+        return res.redirect('/reset');
+      }
+      user.resetToken= token;
+      user.resetTokenExpiration= new Date.now() + 36 * 10000;
+      return user.save();
+    })
+    .then(result => {
+      res.redirect('/')
+      return transporter.sendMail({
+        to: req.body.email,
+        from:'praveen@777kumar.com',
+        subject: 'Password Reset',
+        html:`
+         <p> you requested a password reset.</p>
+        <p> Click this <a href= "http://localhost:3000/reset/${token}"> link </a> to set a new passaword.</p>
+        // `
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    })
+    .catch(err => {
+      console.log(err);
+    })
+
+  });
+}
