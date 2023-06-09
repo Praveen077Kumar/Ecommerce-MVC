@@ -1,9 +1,11 @@
-const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const User = require('../models/user');
 
+const bcrypt = require('bcryptjs');
 const nodemailer= require('nodemailer');
 const mailtrap= require('mailtrap');
+
+const User = require('../models/user');
+
 const transporter = nodemailer.createTransport({
   host: "sandbox.smtp.mailtrap.io",
   port: 2525,
@@ -12,13 +14,13 @@ const transporter = nodemailer.createTransport({
     pass: "4b4b876b51e200"
   }
 });
+
 exports.getLogin = (req, res, next) => {
-  let message= req.flash('error');
-  if(message.length > 0){
-    message= message[0];
-  }
-  else {
-    message= null;
+  let message = req.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
   }
   res.render('auth/login', {
     path: '/login',
@@ -28,10 +30,17 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.getSignup = (req, res, next) => {
+  let message = req.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
-   });
+    errorMessage: message
+  });
 };
 
 exports.postLogin = (req, res, next) => {
@@ -40,7 +49,7 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ email: email })
     .then(user => {
       if (!user) {
-        req.flash('error', 'Invalid email and password!')
+        req.flash('error', 'Invalid email or password.');
         return res.redirect('/login');
       }
       bcrypt
@@ -54,6 +63,7 @@ exports.postLogin = (req, res, next) => {
               res.redirect('/');
             });
           }
+          req.flash('error', 'Invalid email or password.');
           res.redirect('/login');
         })
         .catch(err => {
@@ -71,6 +81,10 @@ exports.postSignup = (req, res, next) => {
   User.findOne({ email: email })
     .then(userDoc => {
       if (userDoc) {
+        req.flash(
+          'error',
+          'E-Mail exists already, please pick a different one.'
+        );
         return res.redirect('/signup');
       }
       return bcrypt
@@ -108,57 +122,51 @@ exports.postLogout = (req, res, next) => {
   });
 };
 
-exports.getReset = (req,res,next)=>{
-  let message= req.flash('error');
-  if(message.length > 0){
-    message= message[0];
+exports.getReset = (req, res, next) => {
+  let message = req.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
   }
-  else {
-    message= null;
-  }
-
-  res.render('auth/reset',{
+  res.render('auth/reset', {
     path: '/reset',
     pageTitle: 'Reset Password',
     errorMessage: message
-  })
-}
+  });
+};
 
-exports.postRest= (res,req,next) => {
-  crypto.randomBytes(32,(err,buffer) =>{
-    if(err){
+exports.postReset = (req, res, next) => {
+  crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
       console.log(err);
       return res.redirect('/reset');
     }
-    const token= buffer.toString('hex');
-    User.findOne({ email: req.body.email})
-    .then(user => {
-      if(!user){
-        req.flash('error', 'No account with that email!');
-        return res.redirect('/reset');
-      }
-      user.resetToken= token;
-      user.resetTokenExpiration= new Date.now() + 36 * 10000;
-      return user.save();
-    })
-    .then(result => {
-      res.redirect('/')
-      return transporter.sendMail({
-        to: req.body.email,
-        from:'praveen@777kumar.com',
-        subject: 'Password Reset',
-        html:`
-         <p> you requested a password reset.</p>
-        <p> Click this <a href= "http://localhost:3000/reset/${token}"> link </a> to set a new passaword.</p>
-        // `
+    const token = buffer.toString('hex');
+    User.findOne({ email: req.body.email })
+      .then(user => {
+        if (!user) {
+          req.flash('error', 'No account with that email found.');
+          return res.redirect('/reset');
+        }
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 3600000;
+        return user.save();
+      })
+      .then(result => {
+        res.redirect('/');
+        transporter.sendMail({
+          to: req.body.email,
+          from: 'shop@node-complete.com',
+          subject: 'Password reset',
+          html: `
+            <p>You requested a password reset</p>
+            <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password.</p>
+          `
+        });
       })
       .catch(err => {
         console.log(err);
-      })
-    })
-    .catch(err => {
-      console.log(err);
-    })
-
+      });
   });
-}
+};
