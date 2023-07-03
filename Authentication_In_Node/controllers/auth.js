@@ -6,12 +6,12 @@ const mailtrap= require('mailtrap');
 
 const User = require('../models/user');
 
-const transporter = nodemailer.createTransport({
+var transporter = nodemailer.createTransport({
   host: "sandbox.smtp.mailtrap.io",
   port: 2525,
   auth: {
-    user: "475f75ddc8d554",
-    pass: "4b4b876b51e200"
+    user: "de01ef2c1383dd",
+    pass: "09a3ba4fec47fb"
   }
 });
 
@@ -44,7 +44,8 @@ exports.getSignup = (req, res, next) => {
       email: "",
       password:"",
       confirmPassword: "",
-    }
+    },
+      validationErrors: []
   });
 };
 
@@ -99,7 +100,8 @@ exports.postSignup = (req, res, next) => {
       path:'/signup',
       pageTitle: 'Signup',
       errorMessage: errors.array()[0].msg,
-      oldInput:{email: email, password: password, confirmPassword: confirmPassword}
+      oldInput:{email: email, password: password, confirmPassword: confirmPassword},
+      validationErrors:errors.array()
     })
   }
       bcrypt
