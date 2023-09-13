@@ -1,11 +1,11 @@
 const crypto = require('crypto');
-const {validationResult}= require('express-validator')
+
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-const mailtrap= require('mailtrap');
-
+const sendgridTransport = require('nodemailer-sendgrid-transport');
+const { validationResult } = require('express-validator');
+const mailtrap = require('mailtrap');
 const User = require('../models/user');
-
 var transporter = nodemailer.createTransport({
   host: "sandbox.smtp.mailtrap.io",
   port: 2525,
@@ -14,7 +14,6 @@ var transporter = nodemailer.createTransport({
     pass: "09a3ba4fec47fb"
   }
 });
-
 exports.getLogin = (req, res, next) => {
   let message = req.flash('error');
   if (message.length > 0) {
@@ -113,7 +112,11 @@ exports.postLogin = (req, res, next) => {
           res.redirect('/login');
         });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postSignup = (req, res, next) => {
@@ -137,32 +140,30 @@ exports.postSignup = (req, res, next) => {
   }
 
   bcrypt
-        .hash(password, 12)
-        .then(hashedPassword => {
-          const user = new User({
-            email: email,
-            password: hashedPassword,
-            cart: { items: [] }
-          });
-          return user.save();
-        })
-        .then(result => {
-          res.redirect('/login');
-          return transporter.sendMail({
-            to: email,
-            from:'test@email.com',
-            subject: 'testing email',
-            html:'<h1> you have successfully joined!</h1>'
-          });
-        })
-        .catch(err => {
-          console.log(err);
-        })
+    .hash(password, 12)
+    .then(hashedPassword => {
+      const user = new User({
+        email: email,
+        password: hashedPassword,
+        cart: { items: [] }
+      });
+      return user.save();
+    })
+    .then(result => {
+      res.redirect('/login');
+      // return transporter.sendMail({
+      //   to: email,
+      //   from: 'shop@node-complete.com',
+      //   subject: 'Signup succeeded!',
+      //   html: '<h1>You successfully signed up!</h1>'
+      // });
+    })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
-
 
 exports.postLogout = (req, res, next) => {
   req.session.destroy(err => {
@@ -215,7 +216,9 @@ exports.postReset = (req, res, next) => {
         });
       })
       .catch(err => {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   });
 };
@@ -239,7 +242,9 @@ exports.getNewPassword = (req, res, next) => {
       });
     })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -268,6 +273,8 @@ exports.postNewPassword = (req, res, next) => {
       res.redirect('/login');
     })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
