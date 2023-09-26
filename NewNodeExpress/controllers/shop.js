@@ -55,6 +55,30 @@ exports.getProduct = (req, res, next) => {
     });
 };
 
+
+exports.getCheckout=(req,res,next) => {
+  req.user
+  .populate('cart.items.productId')
+  .then(user => {
+    const products = user.cart.items;
+    let total= 0;
+    products.forEach(p =>{
+      total += p.quantity * p.productId.price;
+    })
+    res.render('shop/checkout', {
+      path: '/checkout',
+      pageTitle: 'Checkout',
+      products: products,
+      totalSum:total  
+    });
+  })
+  .catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
+  });
+};
+
 exports.getIndex = (req, res, next) => {
   const page = +req.query.page ||1;
   let totalItems;
